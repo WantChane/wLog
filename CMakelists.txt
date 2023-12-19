@@ -6,7 +6,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 project(wLog)
 
-file(GLOB_RECURSE SRC src/*.cpp)
+file(GLOB_RECURSE SRC CONFIGURE_DEPENDS src/*.cpp)
 
 add_library(wLog STATIC ${SRC})
 target_include_directories(wLog PUBLIC include)

@@ -11,7 +11,7 @@ void InitLogger( const std::string LogFileRootPath,
 		std::vector<spdlog::sink_ptr> sinks;
 
 		auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-		stdout_sink->set_level( spdlog::level::debug );
+		stdout_sink->set_level( spdlog::level::trace );
 		stdout_sink->set_pattern( LogStdoutSinkFmt );
 		sinks.push_back( stdout_sink );
 
@@ -26,7 +26,7 @@ void InitLogger( const std::string LogFileRootPath,
 		sinks.push_back( r_file_sink );
 
 		auto My_Log = std::make_shared<spdlog::logger>( MY_LOG_NAME, begin( sinks ), end( sinks ) );
-		My_Log->set_level( spdlog::level::debug );
+		My_Log->set_level( spdlog::level::trace );
 		spdlog::register_logger( My_Log );
 	}
 	catch( const spdlog::spdlog_ex& ex )

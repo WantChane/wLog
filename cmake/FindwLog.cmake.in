@@ -1,0 +1,23 @@
+if(NOT WLOG_PATH)
+    set(WLOG_PATH "@CMAKE_INSTALL_PREFIX@")
+endif()
+
+find_path(WLOG_INCLUDE_DIR NAMES wLog/wLog.h
+                    PATHS ${WLOG_PATH}/include)
+find_library(WLOG_LIBRARY NAMES wLog
+                         PATHS ${WLOG_PATH}/lib)
+
+include(FindPackageHandleStandardArgs)
+
+find_package_handle_standard_args(wLog DEFAULT_MSG WLOG_LIBRARY WLOG_INCLUDE_DIR)
+
+if(WLOG_FOUND AND NOT TARGET wLog)
+    add_library(wLog UNKNOWN IMPORTED)
+    set_target_properties(wLog PROPERTIES
+        IMPORTED_LOCATION "${WLOG_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${WLOG_INCLUDE_DIR}")
+else()
+    message(FATAL_ERROR "wLog not found")
+endif()
+
+mark_as_advanced(WLOG_LIBRARY WLOG_INCLUDE_DIR)

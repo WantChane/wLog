@@ -4,27 +4,58 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+if(NOT CMAKE_INSTALL_PREFIX)
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/install CACHE PATH "..." FORCE)
+endif()
+
 project(wLog)
 
 file(GLOB_RECURSE SRC CONFIGURE_DEPENDS src/*.cpp)
 
-add_library(wLog STATIC ${SRC})
-target_include_directories(wLog PUBLIC include)
+add_library(wLog_static STATIC ${SRC})
+add_library(wLog::wLog_static ALIAS wLog_static)
+target_include_directories(wLog_static PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
 
-if(NOT CMAKE_INSTALL_PREFIX)
-    set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/install)
-endif()
+add_library(wLog_shared SHARED ${SRC})
+add_library(wLog::wLog_shared ALIAS wLog_shared)
+target_include_directories(wLog_shared PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
 set(CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}/lib)
 set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_PREFIX}/include)
+set(CMAKE_INSTALL_BINDIR ${CMAKE_INSTALL_PREFIX}/bin)
 
-install(TARGETS wLog
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(TARGETS wLog_static
+    EXPORT wLog-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 
-install(DIRECTORY include/ 
+install(TARGETS wLog_shared
+    EXPORT wLog-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(DIRECTORY include/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    FILES_MATCHING PATTERN "*.h")
+    FILES_MATCHING PATTERN "*.h"
+)
 
-configure_file(cmake/FindwLog.cmake.in FindwLog.cmake @ONLY)
+install(EXPORT wLog-targets
+    FILE wLog-targets.cmake
+    NAMESPACE wLog::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wLog
+)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/FindwLog.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wLog)
+install(FILES cmake/wLog-config.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wLog
+)
+
